@@ -1,0 +1,13 @@
+//
+// Created by karol on 22/11/2026.
+//
+
+#ifndef MOTION_DETECTOR_TEST_CONNECTED_COMPONENTS_H
+#define MOTION_DETECTOR_TEST_CONNECTED_COMPONENTS_H
+
+
+class test_connected_components {
+};
+
+
+#endif //MOTION_DETECTOR_TEST_CONNECTED_COMPONENTS_H
