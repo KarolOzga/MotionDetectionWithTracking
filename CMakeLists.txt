@@ -20,14 +20,14 @@ target_link_libraries(motion_lib PUBLIC ${OpenCV_LIBS})
 
 # Program
 add_executable(motion_detector src/main.cpp
-        tests/test_connected_components.cpp
-        tests/test_connected_components.h)
+)
 target_link_libraries(motion_detector PRIVATE motion_lib)
 
 # Testy (GoogleTest)
 include(FetchContent)
 FetchContent_Declare(googletest
-        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip)
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
