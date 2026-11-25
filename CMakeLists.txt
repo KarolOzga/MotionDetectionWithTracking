@@ -20,6 +20,8 @@ target_link_libraries(motion_lib PUBLIC ${OpenCV_LIBS})
 
 # Program
 add_executable(motion_detector src/main.cpp
+        src/Morphology.cpp
+        include/Morphology.h
 )
 target_link_libraries(motion_detector PRIVATE motion_lib)
 

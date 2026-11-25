@@ -2,6 +2,7 @@
 #include <opencv2/opencv.hpp>
 #include "BackgroundModel.h"
 #include "ConnectedComponents.h"
+#include "Morphology.h"
 constexpr int ESC_KEY = 27;
 
 int main(int argc, char** argv) {
@@ -38,11 +39,8 @@ int main(int argc, char** argv) {
 
         cv::GaussianBlur(gray, gray, cv::Size(5, 5), 0);
 
-        const cv::Mat mask = background_model.update(gray);
-
-        cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(25, 25)); //dystalacja i erozja
-        cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
-
+        cv::Mat mask = background_model.update(gray);
+        mask = Morphology::close(mask, 15);
         auto boxes = ConnectedComponents().findObjects(mask, 750);
 
 
