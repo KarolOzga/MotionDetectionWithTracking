@@ -8,6 +8,7 @@ class BackgroundModel {
 public:
     BackgroundModel(float alpha, int threshold);
     cv::Mat update(const cv::Mat& gray);
+    void initialize(const std::vector<cv::Mat>& frames);
 
 private:
     float alpha_;
