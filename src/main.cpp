@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     cv::Mat frame, gray;
 
 
-    BackgroundModel background_model(0.02f, 50);
+    BackgroundModel background_model(0.02f, 30);
     //alpha and threshold values can be adjusted based on the video characteristics
 
     cv::namedWindow("Mask", cv::WINDOW_NORMAL);
@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
     cv::resizeWindow("Gray", 960, 540);
     cv::moveWindow("Gray", 0, 0);
     cv::moveWindow("Mask", 960, 0);
+    cv::moveWindow("Frame", 0, 600);
 
 
     while (cap.read(frame)) {
@@ -41,7 +42,8 @@ int main(int argc, char** argv) {
 
         cv::Mat mask = background_model.update(gray);
         mask = Morphology::close(mask, 15);
-        auto boxes = ConnectedComponents().findObjects(mask, 750);
+        auto boxes = ConnectedComponents::findObjects(mask, 750);
+        boxes = ConnectedComponents::mergeBoxes(boxes, 20);
 
 
         for (const auto& box : boxes) {

@@ -20,7 +20,10 @@ public:
         int height;
         int area;
     };
-    std::vector<Box> findObjects(const cv::Mat& mask, int minArea);
+
+    static std::vector<Box> findObjects(const cv::Mat& mask, int minArea);
+    static std::vector<Box> mergeBoxes(const std::vector<Box>& boxes, int mergeDistance);
+    static bool areBoxesClose(const Box& box1, const Box& box2, int mergeDistance);
 
 
 };
