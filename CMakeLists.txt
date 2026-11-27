@@ -12,7 +12,9 @@ add_library(motion_lib
         src/BackgroundModel.cpp
         include/BackgroundModel.h
         src/ConnectedComponents.cpp
-        include/ConnectedComponents.h)
+        include/ConnectedComponents.h
+        src/Morphology.cpp
+        include/Morphology.h)
 target_include_directories(motion_lib PUBLIC
         include
         ${OpenCV_INCLUDE_DIRS})
@@ -20,8 +22,6 @@ target_link_libraries(motion_lib PUBLIC ${OpenCV_LIBS})
 
 # Program
 add_executable(motion_detector src/main.cpp
-        src/Morphology.cpp
-        include/Morphology.h
 )
 target_link_libraries(motion_detector PRIVATE motion_lib)
 
@@ -33,7 +33,8 @@ FetchContent_Declare(googletest
 FetchContent_MakeAvailable(googletest)
 
 enable_testing()
-add_executable(tests tests/test_connected_components.cpp)
+add_executable(tests tests/test_connected_components.cpp
+        tests/test_morphology.cpp)
 target_link_libraries(tests PRIVATE motion_lib GTest::gtest_main)
 
 include(GoogleTest)

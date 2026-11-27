@@ -1,7 +1,6 @@
 //
 // Created by karol on 25/11/2026.
 //
-#pragma once
 #include <Morphology.h>
 #include <stdint.h>
 #include <algorithm>
@@ -12,7 +11,7 @@ cv::Mat Morphology::dilate(const cv::Mat& input, const int kernelSize) {
     cv::Mat temp(input.rows, input.cols, CV_8UC1);
     const int halfKernel = kernelSize / 2;
 
-    //vertival
+    //vertical
     for (int y = 0; y < input.rows; ++y) {
         auto* tempRow = temp.ptr<uint8_t>(y);
         for (int x = 0; x < input.cols; ++x) {
