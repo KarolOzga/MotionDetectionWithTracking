@@ -2,7 +2,9 @@
 #include <opencv2/opencv.hpp>
 #include "BackgroundModel.h"
 #include "ConnectedComponents.h"
+#include "Morphology.h"
 constexpr int ESC_KEY = 27;
+constexpr int WORK_WIDTH = 960;
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -20,30 +22,44 @@ int main(int argc, char** argv) {
     cv::Mat frame, gray;
 
 
-    BackgroundModel background_model(0.02f, 50);
+    BackgroundModel background_model(0.02f, 35);
     //alpha and threshold values can be adjusted based on the video characteristics
 
     cv::namedWindow("Mask", cv::WINDOW_NORMAL);
     cv::namedWindow("Gray", cv::WINDOW_NORMAL);
     cv::namedWindow("Frame", cv::WINDOW_NORMAL);
-    cv::resizeWindow("Frame", 960, 540);
-    cv::resizeWindow("Mask", 960, 540);
-    cv::resizeWindow("Gray", 960, 540);
+    cv::resizeWindow("Frame", 960, 960);
+    cv::resizeWindow("Mask", 960, 960);
+    cv::resizeWindow("Gray", 960, 960);
     cv::moveWindow("Gray", 0, 0);
     cv::moveWindow("Mask", 960, 0);
+    cv::moveWindow("Frame", 0, 600);
 
+    std::vector<cv::Mat> initialFrames;
+    for (int i = 0; initialFrames.size() < 40 && cap.read(frame); ++i) {
+        if (i % 6 != 0) continue;
+        const double scale = static_cast<double>(WORK_WIDTH) / frame.cols;
+        cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_AREA);
+        cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+        cv::GaussianBlur(gray, gray, cv::Size(5, 5), 0);
+        initialFrames.push_back(gray.clone());
+    }
+    background_model.initialize(initialFrames);
+    cap.set(cv::CAP_PROP_POS_FRAMES, 0);
 
     while (cap.read(frame)) {
+        const double scale = static_cast<double>(WORK_WIDTH) / frame.cols;
+        cv::resize(frame, frame, cv::Size(), scale, scale, cv::INTER_AREA);
+
         cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
         cv::GaussianBlur(gray, gray, cv::Size(5, 5), 0);
 
-        const cv::Mat mask = background_model.update(gray);
-
-        cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(25, 25)); //dystalacja i erozja
-        cv::morphologyEx(mask, mask, cv::MORPH_CLOSE, kernel);
-
-        auto boxes = ConnectedComponents().findObjects(mask, 750);
+        cv::Mat mask = background_model.update(gray);
+        mask = Morphology::open(mask, 3);
+        mask = Morphology::close(mask, 9);
+        auto boxes = ConnectedComponents::findObjects(mask, 190);
+        // boxes = ConnectedComponents::mergeBoxes(boxes, 5);
 
 
         for (const auto& box : boxes) {

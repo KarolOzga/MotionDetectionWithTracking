@@ -62,7 +62,6 @@ TEST(ConnectedComponents, TreatsDiagonalPixelsAsConnected) {
     EXPECT_EQ(boxes[0].y, 0);
     EXPECT_EQ(boxes[0].width, 5);
     EXPECT_EQ(boxes[0].height, 5);
-
 }
 
 
@@ -95,4 +94,31 @@ TEST(ConnectedComponents, FindsTwoSeparateObjects) {
     EXPECT_EQ(boxes[1].y, 5);
     EXPECT_EQ(boxes[1].width, 2);
     EXPECT_EQ(boxes[1].height, 2);
+}
+
+
+TEST(ConnectedComponents, MergesCloseObjects) {
+    cv::Mat mask = cv::Mat::zeros(8, 8, CV_8UC1);
+
+    // L
+    mask.at<uint8_t>(1, 1) = 255;
+    mask.at<uint8_t>(1, 2) = 255;
+    mask.at<uint8_t>(2, 1) = 255;
+
+    // 2x2 square
+    mask.at<uint8_t>(5, 5) = 255;
+    mask.at<uint8_t>(5, 6) = 255;
+    mask.at<uint8_t>(6, 5) = 255;
+    mask.at<uint8_t>(6, 6) = 255;
+
+    auto boxes = ConnectedComponents::findObjects(mask, 1);
+    auto mergedBoxes = ConnectedComponents::mergeBoxes(boxes, 3);
+
+    ASSERT_EQ(mergedBoxes.size(), 1);
+
+    EXPECT_EQ(mergedBoxes[0].area, 7);
+    EXPECT_EQ(mergedBoxes[0].x, 1);
+    EXPECT_EQ(mergedBoxes[0].y, 1);
+    EXPECT_EQ(mergedBoxes[0].width, 6);
+    EXPECT_EQ(mergedBoxes[0].height, 6);
 }

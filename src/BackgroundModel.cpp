@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <algorithm>
+#include <vector>
 
 BackgroundModel::BackgroundModel(float alpha, int threshold): alpha_(alpha), threshold_(threshold) {
     if (alpha < 0.0f || alpha > 1.0f) {
@@ -39,4 +41,17 @@ cv::Mat BackgroundModel::update(const cv::Mat& gray) {
     }
 
     return mask;
+}
+
+void BackgroundModel::initialize(const std::vector<cv::Mat>& frames) {
+    if (frames.empty()) return;
+    const size_t size = frames.front().total();
+    background_.resize(size);
+    std::vector<uchar> values(frames.size());
+    for (size_t i = 0; i < size; ++i) {
+        for (size_t k = 0; k < frames.size(); ++k) values[k] = frames[k].data[i];
+        auto middle = values.begin() + values.size() / 2;
+        std::nth_element(values.begin(), middle, values.end());
+        background_[i] = *middle;
+    }
 }

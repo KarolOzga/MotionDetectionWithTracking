@@ -81,3 +81,49 @@ std::vector<ConnectedComponents::Box> ConnectedComponents::findObjects(const cv:
     }
     return objects;
 }
+
+std::vector<ConnectedComponents::Box>
+ConnectedComponents::mergeBoxes(const std::vector<Box>& boxes, int mergeDistance) {
+    std::vector<Box> result = boxes;
+
+
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        for (size_t i = 0; i < result.size() && !changed; ++i) {
+            for (size_t j = i + 1; j < result.size(); ++j) {
+                if (!areBoxesClose(result[i], result[j], mergeDistance)) continue;
+
+                const int x1 = std::min(result[i].x, result[j].x);
+                const int y1 = std::min(result[i].y, result[j].y);
+                const int x2 = std::max(result[i].x + result[i].width,result[j].x + result[j].width);
+                const int y2 = std::max(result[i].y + result[i].height,result[j].y + result[j].height);
+
+                result[i] = {x1, y1, x2 - x1, y2 - y1, result[i].area + result[j].area};
+                result.erase(result.begin() + j);
+                changed = true;
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+
+bool ConnectedComponents::areBoxesClose(const Box& box1, const Box& box2, const int mergeDistance) {
+    const int left1 = box1.x;
+    const int right1 = box1.x + box1.width;
+    const int top1 = box1.y;
+    const int bottom1 = box1.y + box1.height;
+
+    const int left2 = box2.x;
+    const int right2 = box2.x + box2.width;
+    const int top2 = box2.y;
+    const int bottom2 = box2.y + box2.height;
+
+
+    const int gapX = std::max(left1, left2) - std::min(right1, right2);
+    const int gapY = std::max(top1, top2) - std::min(bottom1, bottom2);
+
+    return gapX <= mergeDistance && gapY <= mergeDistance;
+}
